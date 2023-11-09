@@ -12,11 +12,15 @@
                        :x (lambda () (clui::half clui:*window-width*))
                        :y (lambda () (clui::half clui:*window-height*))
                        :width (lambda ()  clui:*window-width*)
-                       ;;:height (lambda () clui:*window-height*)
                        ))
+(defparameter current-scene nil)
 
 (defun make-main-menu ()
   (clui:remove-all-instances)
+  (setf current-scene 'main-menu)
+  (clui:input-register-keypress 'escape (lambda ()
+                                          (when (eq current-scene 'main-menu)
+                                            (clui:exit))))
   (set-bg "assets/images/main-menu.png")
   (clui:shape-instance 'basic-text
                        :instance-name 'title-text
@@ -43,7 +47,8 @@
                        :on-pressed (lambda () (clui:exit))
                        :x (lambda () (clui::half clui:*window-width*))
                        :y (lambda () (- (clui::half clui:*window-height*) 100))
-                       :min-width 300))
+                       :min-width 300)
+  (clui::play-music "assets/music/piano-copyright.wav"))
 
 (defparameter *day-time* (get-internal-real-time))
 (defparameter *timescale* 5)
@@ -54,6 +59,11 @@
 (defparameter stats nil)
 
 (defun enter-game-world ()
+  (setf current-scene 'game-world)
+  (clui::play-music "assets/music/everyday-fantasy.wav")
+  (clui:input-register-keypress 'escape (lambda ()
+                                          (when (eq current-scene 'game-world)
+                                            (make-main-menu))))
   (clui:remove-all-instances)
   (reset-day-time)
   (set-bg "assets/images/copyright/class.png")
@@ -79,10 +89,15 @@
                        :x (+ 100 (* 80 (position (clui::to-property stat-name) stats)))
                        :y 50
                        :button-text button-text
+                       :on-mouse-enter (lambda () (clui:play-sound "assets/sounds/btn-hover.wav"))
                        :on-pressed (or
-                                    stat-modifier-func
-                                    (lambda () (setf (getf stats (clui:to-property stat-name))
-                                                     (1+ (or (getf stats (clui:to-property stat-name)) 0)))))))
+                                    (when stat-modifier-func
+                                      (lambda () (progn (funcall stat-modifier-func)
+                                                        (clui::play-sound "assets/sounds/btn-press.wav"))))
+                                    (lambda () (progn
+                                                 (setf (getf stats (clui:to-property stat-name))
+                                                       (1+ (or (getf stats (clui:to-property stat-name)) 0)))
+                                                 (clui::play-sound "assets/sounds/btn-press.wav"))))))
 
 (defun make-stat-modifier (stat1-name stat2-name stat1-amount stat2-amount)
   (lambda () (when (and stat1-name stat1-amount)
