@@ -70,7 +70,38 @@
   (make-date-text)
   (make-stat "Knowledge" "Study" (make-stat-modifier "Knowledge" "Energy" 1 -1))
   (make-stat "Energy" "Rest" (make-stat-modifier "Energy" "Food" 1 -1))
-  (make-stat "Food" "Eat"))
+  (make-stat "Food" "Eat")
+  (make-settings-button))
+
+(clui:defshape
+  nil
+  :children (list
+             (clui:make-child-list 'basic-rect "outer-rect" :x 0 :y 0 :z 1 :width 410 :height 310 :colour '(0.4 0.4 0.4))
+             (clui:make-child-list 'basic-rect "inner-rect" :x 0 :y 0 :z 2 :width 400 :height 300 :colour '(0.8 0.8 0.8))
+             (clui:make-child-list 'basic-text "setting-text" :x 0 :y 103 :z 3 :scale 1.5 :align-center t :text-string "SETTINGS")
+             (clui:make-child-list 'basic-button "close-btn" :x 170 :y 120 :z 4
+                                                             :button-text "X"
+                                                             :scale 0.8
+                                                             :min-width 30
+                                                             :on-pressed (lambda () (clui:remove-instances-starting-with  (format nil "~a" clui:*shape-last-pressed*)))
+                                                             )
+             )
+  :name 'ms-settings-menu)
+
+(defun make-settings-button ()
+  (clui:shape-instance 'basic-button :instance-name 'settings-button
+                                     :x (lambda () (- clui:*window-width* 40))
+                                     :y 30
+                                     :button-text "..."
+                                     :scale 0.8
+                                     :min-width 30
+                                     :on-pressed #'make-settings-menu))
+
+(defun make-settings-menu ()
+  (clui:shape-instance 'ms-settings-menu
+                       :x (lambda () (* 0.5 clui:*window-width*))
+                       :y (lambda () (* 0.5 clui:*window-height*))
+                       :instance-name 'settings-menu))
 
 (defun make-stat (stat-name button-text &optional button-stat-modifier)
   (make-stat-text stat-name)
