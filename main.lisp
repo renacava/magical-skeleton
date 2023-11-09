@@ -83,7 +83,7 @@
                                                              :button-text "X"
                                                              :scale 0.8
                                                              :min-width 30
-                                                             :on-pressed (lambda () (clui:remove-instances-starting-with  (format nil "~a" clui:*shape-last-pressed*)))
+                                                             :on-pressed (lambda () (clui:remove-instance 'settings-button))
                                                              )
              )
   :name 'ms-settings-menu)
