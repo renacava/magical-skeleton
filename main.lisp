@@ -79,13 +79,14 @@
              (clui:make-child-list 'basic-rect "outer-rect" :x 0 :y 0 :z 1 :width 410 :height 310 :colour '(0.4 0.4 0.4))
              (clui:make-child-list 'basic-rect "inner-rect" :x 0 :y 0 :z 2 :width 400 :height 300 :colour '(0.8 0.8 0.8))
              (clui:make-child-list 'basic-text "setting-text" :x 0 :y 103 :z 3 :scale 1.5 :align-center t :text-string "SETTINGS")
+             (clui:make-child-list 'basic-text "sound-volume-text" :x 0 :y 46 :z 4 :scale 0.8 :align-center t :text-string "SFX Volume")
+             (clui:make-child-list 'basic-text "music-volume-text" :x 0 :y -43 :z 4 :scale 0.8 :align-center t :text-string "Music Volume")
              (clui:make-child-list 'basic-button "close-btn" :x 170 :y 120 :z 4
                                                              :button-text "X"
                                                              :scale 0.8
                                                              :min-width 30
-                                                             :on-pressed (lambda () (clui:remove-instance 'settings-button))
-                                                             )
-             )
+                                                             :on-pressed (lambda () (mapcar #'clui:remove-instance (append (list 'settings-menu)
+                                                                                                                           (clui::instances-starting-with "settings-menu-slider-"))))))
   :name 'ms-settings-menu)
 
 (defun make-settings-button ()
@@ -98,10 +99,24 @@
                                      :on-pressed #'make-settings-menu))
 
 (defun make-settings-menu ()
-  (clui:shape-instance 'ms-settings-menu
-                       :x (lambda () (* 0.5 clui:*window-width*))
-                       :y (lambda () (* 0.5 clui:*window-height*))
-                       :instance-name 'settings-menu))
+  (let ((x-func (lambda (&optional (offset 0)) (+ (clui:resolve offset) (* 0.5 clui:*window-width*))))
+        (y-func (lambda (&optional (offset 0)) (+ (clui:resolve offset) (* 0.5 clui:*window-height*)))))
+    (clui:shape-instance 'ms-settings-menu
+                         :x x-func
+                         :y y-func
+                         :instance-name 'settings-menu)
+    (clui::make-slider x-func
+                       (lambda () (funcall y-func 20))
+                       :slider-name "settings-menu-slider-sound-volume"
+                       :scale 1.5
+                       :step 0.05
+                       :on-value-changed-func (lambda () (clui::set-sound-volume (clui::slider-get-value "settings-menu-slider-sound-volume"))))
+    (clui::make-slider x-func
+                       (lambda () (funcall y-func -70))
+                       :slider-name "settings-menu-slider-music-volume"
+                       :scale 1.5
+                       :step 0.05
+                       :on-value-changed-func (lambda () (clui::set-music-volume (clui::slider-get-value "settings-menu-slider-music-volume"))))))
 
 (defun make-stat (stat-name button-text &optional button-stat-modifier)
   (make-stat-text stat-name)
