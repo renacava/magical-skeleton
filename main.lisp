@@ -129,7 +129,8 @@
                        :scale 1.5
                        :step 0.05
                        :on-value-changed-func (lambda () (clui::set-music-volume (clui::slider-get-value "settings-menu-slider-music-volume"))))
-    (clui::slider-set-value "settings-menu-slider-music-volume" mus-vol)))
+    (clui::slider-set-value "settings-menu-slider-music-volume" mus-vol)
+    (clui:add-instances-to-context (clui::instances-starting-with "settings-menu"))))
 
 (defun make-stat (stat-name button-text &optional button-stat-modifier)
   (make-stat-text stat-name)
@@ -159,14 +160,24 @@
                                                  (clui::play-sound "assets/sounds/btn-press.wav"))))))
 
 (defun make-stat-modifier (stat1-name stat2-name stat1-amount stat2-amount)
-  (lambda () (when (and stat1-name stat1-amount)
-               (setf (getf stats (clui:to-property stat1-name))
-                     (+ (or (getf stats (clui:to-property stat1-name)) 0)
-                        stat1-amount)))
-    (when (and stat2-name stat2-amount
-               (setf (getf stats (clui:to-property stat2-name))
-                     (+ (or (getf stats (clui:to-property stat2-name)) 0)
-                        stat2-amount))))))
+  (lambda ()
+    (let ((s1-amount stat1-amount)
+          (s2-amount stat2-amount))
+      ;; check if adding stat2-amount to stat2-name would reduce it below 0.
+      ;; if it does, set the amounts to add to each stat to 0, effectively nullifying the func.
+      (when (and stat2-name stat2-amount)
+        (when (> 0 (+ (or (getf stats (clui:to-property stat2-name)) 0)
+                      stat2-amount))
+          (setf s1-amount 0
+                s2-amount 0)))
+      (when (and stat1-name stat1-amount)
+        (setf (getf stats (clui:to-property stat1-name))
+              (+ (or (getf stats (clui:to-property stat1-name)) 0)
+                 s1-amount)))
+      (when (and stat2-name stat2-amount
+                 (setf (getf stats (clui:to-property stat2-name))
+                       (+ (or (getf stats (clui:to-property stat2-name)) 0)
+                          s2-amount)))))))
 
 (defun make-date-text ()
   (let ((y (lambda () (- clui:*window-height* 45))))
