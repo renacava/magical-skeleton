@@ -18,9 +18,15 @@
 (defun make-main-menu ()
   (clui:remove-all-instances)
   (setf current-scene 'main-menu)
-  (clui:input-register-keypress 'escape (lambda ()
-                                          (when (eq current-scene 'main-menu)
-                                            (clui:exit))))
+  (clui::input-clear-keypress-by-name 'escape "quit-overworld")
+  (clui:input-register-keypress 'escape
+                                (lambda ()
+                                  (when (eq current-scene 'main-menu)
+                                    (print "#'enter-main-menu")
+                                    (clui:exit)
+                                    
+                                    ))
+                                "quit-main-menu")
   (set-bg "assets/images/main-menu.png")
   (clui:shape-instance 'basic-text
                        :instance-name 'title-text
@@ -61,9 +67,12 @@
 (defun enter-game-world ()
   (setf current-scene 'game-world)
   (clui::play-music "assets/music/everyday-fantasy.wav")
+  (clui::input-clear-keypress-by-name 'escape "quit-main-menu")
   (clui:input-register-keypress 'escape (lambda ()
                                           (when (eq current-scene 'game-world)
-                                            (make-main-menu))))
+                                            (print "#'enter-game-world")
+                                            (make-main-menu)))
+                                "quit-overworld")
   (clui:remove-all-instances)
   (reset-day-time)
   (set-bg "assets/images/copyright/class.png")
