@@ -109,7 +109,9 @@
 
 (defun make-settings-menu ()
   (let ((x-func (lambda (&optional (offset 0)) (+ (clui:resolve offset) (* 0.5 clui:*window-width*))))
-        (y-func (lambda (&optional (offset 0)) (+ (clui:resolve offset) (* 0.5 clui:*window-height*)))))
+        (y-func (lambda (&optional (offset 0)) (+ (clui:resolve offset) (* 0.5 clui:*window-height*))))
+        (sfx-vol (clui:get-sound-volume))
+        (mus-vol (clui:get-music-volume)))
     (clui:shape-instance 'ms-settings-menu
                          :x x-func
                          :y y-func
@@ -120,12 +122,14 @@
                        :scale 1.5
                        :step 0.05
                        :on-value-changed-func (lambda () (clui::set-sound-volume (clui::slider-get-value "settings-menu-slider-sound-volume"))))
+    (clui::slider-set-value "settings-menu-slider-sound-volume" sfx-vol)
     (clui::make-slider x-func
                        (lambda () (funcall y-func -70))
                        :slider-name "settings-menu-slider-music-volume"
                        :scale 1.5
                        :step 0.05
-                       :on-value-changed-func (lambda () (clui::set-music-volume (clui::slider-get-value "settings-menu-slider-music-volume"))))))
+                       :on-value-changed-func (lambda () (clui::set-music-volume (clui::slider-get-value "settings-menu-slider-music-volume"))))
+    (clui::slider-set-value "settings-menu-slider-music-volume" mus-vol)))
 
 (defun make-stat (stat-name button-text &optional button-stat-modifier)
   (make-stat-text stat-name)
