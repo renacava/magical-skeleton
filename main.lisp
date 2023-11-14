@@ -85,12 +85,13 @@
 (clui:defshape
   nil
   :children (list
-             (clui:make-child-list 'basic-rect "outer-rect" :x 0 :y 0 :z 1 :width 410 :height 310 :colour '(0.4 0.4 0.4))
-             (clui:make-child-list 'basic-rect "inner-rect" :x 0 :y 0 :z 2 :width 400 :height 300 :colour '(0.8 0.8 0.8))
-             (clui:make-child-list 'basic-text "setting-text" :x 0 :y 103 :z 3 :scale 1.5 :align-center t :text-string "SETTINGS")
-             (clui:make-child-list 'basic-text "sound-volume-text" :x 0 :y 46 :z 4 :scale 0.8 :align-center t :text-string "SFX Volume")
-             (clui:make-child-list 'basic-text "music-volume-text" :x 0 :y -43 :z 4 :scale 0.8 :align-center t :text-string "Music Volume")
-             (clui:make-child-list 'basic-button "close-btn" :x 170 :y 120 :z 4
+             (clui:make-child-list 'basic-rect "rect-bg" :x 0 :y 0 :z 10 :width (lambda () clui:*window-width*) :height (lambda () clui:*window-height*) :colour (list 0 0 0 0.5))
+             (clui:make-child-list 'basic-rect "outer-rect" :x 0 :y 0 :z 10.01 :width 410 :height 310 :colour '(0.4 0.4 0.4))
+             (clui:make-child-list 'basic-rect "inner-rect" :x 0 :y 0 :z 10.02 :width 400 :height 300 :colour '(0.8 0.8 0.8))
+             (clui:make-child-list 'basic-text "setting-text" :x 0 :y 103 :z 10.03 :scale 1.5 :align-center t :text-string "SETTINGS")
+             (clui:make-child-list 'basic-text "sound-volume-text" :x 0 :y 46 :z 10.04 :scale 0.8 :align-center t :text-string "SFX Volume")
+             (clui:make-child-list 'basic-text "music-volume-text" :x 0 :y -43 :z 10.05 :scale 0.8 :align-center t :text-string "Music Volume")
+             (clui:make-child-list 'basic-button "close-btn" :x 170 :y 120 :z 10.06
                                                              :button-text "X"
                                                              :scale 0.8
                                                              :min-width 30
