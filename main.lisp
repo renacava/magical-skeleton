@@ -3,16 +3,36 @@
 (defun start ()
   (clui:start :outer-package *package*)
   (clui:set-bg-colour (list 0 0 0))
-  (make-main-menu))
+  (make-title-screen))
+
+(defun make-title-screen ()
+  (clui:remove-all-instances)
+  (setf current-scene 'title-screen)
+  (clui:input-register-keypress 'return
+                                (lambda ()
+                                  (when (eq current-scene 'title-screen)
+                                    (clui::input-clear-keypress-by-name 'return "enter-main-menu")
+                                    (make-main-menu)))
+                                "enter-main-menu")
+  (clui:shape-instance 'basic-text :instance-name "title-text"
+                                   :text-string "PRESS ENTER"
+                                   :x (lambda () (clui::half clui::*window-width*))
+                                   :y 100
+                                   :scale 1.5
+                                   :colour '(1 1 1 1)
+                                   :align-center t))
 
 (defun set-bg (bg-image-path)
-  (clui:shape-instance 'basic-image
-                       :instance-name 'bg
-                       :image-path bg-image-path
-                       :x (lambda () (clui::half clui:*window-width*))
-                       :y (lambda () (clui::half clui:*window-height*))
-                       :width (lambda ()  clui:*window-width*)
-                       ))
+  (let ((transition (clui:make-linear-transition 1 0 1)))
+    (clui:shape-instance 'basic-image
+                         :instance-name 'bg
+                         :image-path bg-image-path
+                         :x (lambda () (clui::half clui:*window-width*))
+                         :y (lambda () (clui::half clui:*window-height*))
+                         :width (lambda ()  clui:*window-width*)
+                         :colour (lambda () (clui::lerp-number-list '(0 0 0 1)
+                                                                    '(1 1 1 1)
+                                                                    (funcall transition))))))
 (defparameter current-scene nil)
 
 (defun make-main-menu ()
