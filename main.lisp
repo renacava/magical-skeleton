@@ -23,7 +23,7 @@
                                    :align-center t))
 
 (defun set-bg (bg-image-path)
-  (let ((transition (clui:make-linear-transition 1 0 1)))
+  (let ((transition (clui:make-transition 1 0 1 #'clui:ease-out-circ)))
     (clui:shape-instance 'basic-image
                          :instance-name 'bg
                          :image-path bg-image-path
@@ -48,32 +48,39 @@
                                     ))
                                 "quit-main-menu")
   (set-bg "assets/images/main-menu.png")
-  (clui:shape-instance 'basic-text
-                       :instance-name 'title-text
-                       :text-string "Magical Skeleton"
-                       :x (lambda () (clui::half clui:*window-width*))
-                       :y (lambda () (+ (* 10 (sin (clui:get-real-time-seconds))) (* 0.9 clui:*window-height*)))
-                       :align-center t
-                       :scale (lambda () (+ 2.0 (* 0.3 (sin (+ 15 (clui:get-real-time-seconds))))))
-                       :colour (lambda () (list (abs (sin (clui:get-real-time-seconds)))
-                                                (abs (sin (+ 5 (clui:get-real-time-seconds))))
-                                                (abs (sin (+ 7 (clui:get-real-time-seconds)))))))
+  (let ((bounce (clui:make-transition 0.5 0.75 1 #'clui:ease-out-bounce))
+        (bounce2 (clui:make-transition 0.6 0.75 1 #'clui:ease-out-bounce))
+        (circ (clui:make-transition 0.3 0 1 #'clui:ease-out-circ)))
+    (clui:shape-instance 'basic-text
+                         :instance-name 'title-text
+                         :text-string "Magical Skeleton"
+                         :x (lambda () (clui::half clui:*window-width*))
+                         :y (lambda () (+ (* 10 (sin (clui:get-real-time-seconds))) (* 0.9 clui:*window-height*)))
+                         :align-center t
+                         :scale (lambda () (* (+ 2.0 (* 0.3 (sin (+ 15 (clui:get-real-time-seconds)))))
+                                              (funcall circ)))
+                         :colour (lambda () (list (abs (sin (clui:get-real-time-seconds)))
+                                                  (abs (sin (+ 5 (clui:get-real-time-seconds))))
+                                                  (abs (sin (+ 7 (clui:get-real-time-seconds)))))))
+    (clui:shape-instance 'basic-button
+                         :instance-name 'start-button
+                         :button-text "START"
+                         :on-pressed #'enter-game-world
+                         :x (lambda () (clui::half clui:*window-width*))
+                         :y (lambda () (clui::half clui:*window-height*))
+                         :scale (lambda () (* 1.0 (funcall bounce)))
+                         :min-width 300)
 
-  (clui:shape-instance 'basic-button
-                       :instance-name 'start-button
-                       :button-text "START"
-                       :on-pressed #'enter-game-world
-                       :x (lambda () (clui::half clui:*window-width*))
-                       :y (lambda () (clui::half clui:*window-height*))
-                       :min-width 300)
+    (clui:shape-instance 'basic-button
+                         :instance-name 'quit-button
+                         :button-text "QUIT"
+                         :on-pressed (lambda () (clui:exit))
+                         :x (lambda () (clui::half clui:*window-width*))
+                         :y (lambda () (- (clui::half clui:*window-height*) 100))
+                         :scale (lambda () (* 1.0 (funcall bounce2)))
+                         :min-width 300)
+    )
 
-  (clui:shape-instance 'basic-button
-                       :instance-name 'quit-button
-                       :button-text "QUIT"
-                       :on-pressed (lambda () (clui:exit))
-                       :x (lambda () (clui::half clui:*window-width*))
-                       :y (lambda () (- (clui::half clui:*window-height*) 100))
-                       :min-width 300)
   (clui::play-music "assets/music/piano-copyright.wav"))
 
 (defparameter *day-time* (get-internal-real-time))
@@ -166,19 +173,23 @@
                                    :colour clui::*clui-white*))
 
 (defun make-stat-button (stat-name button-text &optional stat-modifier-func)
-  (clui:shape-instance 'basic-button
-                       :x (+ 100 (* 80 (position (clui::to-property stat-name) stats)))
-                       :y 50
-                       :button-text button-text
-                       :on-mouse-enter (lambda () (clui:play-sound "assets/sounds/btn-hover.wav"))
-                       :on-pressed (or
-                                    (when stat-modifier-func
-                                      (lambda () (progn (funcall stat-modifier-func)
-                                                        (clui::play-sound "assets/sounds/btn-press.wav"))))
-                                    (lambda () (progn
-                                                 (setf (getf stats (clui:to-property stat-name))
-                                                       (1+ (or (getf stats (clui:to-property stat-name)) 0)))
-                                                 (clui::play-sound "assets/sounds/btn-press.wav"))))))
+  (let* ((max-offset 0.3)
+         (offset (- (random (* 2 max-offset)) max-offset))
+         (transition (clui:make-transition (+ 0.5 offset) 0.75 1 #'clui:ease-out-circ)))
+      (clui:shape-instance 'basic-button
+                        :x (+ 100 (* 80 (position (clui::to-property stat-name) stats)))
+                        :y 50
+                        :scale transition
+                        :button-text button-text
+                        :on-mouse-enter (lambda () (clui:play-sound "assets/sounds/btn-hover.wav"))
+                        :on-pressed (or
+                                     (when stat-modifier-func
+                                       (lambda () (progn (funcall stat-modifier-func)
+                                                         (clui::play-sound "assets/sounds/btn-press.wav"))))
+                                     (lambda () (progn
+                                                  (setf (getf stats (clui:to-property stat-name))
+                                                        (1+ (or (getf stats (clui:to-property stat-name)) 0)))
+                                                  (clui::play-sound "assets/sounds/btn-press.wav")))))))
 
 (defun make-stat-modifier (stat1-name stat2-name stat1-amount stat2-amount)
   (lambda ()
