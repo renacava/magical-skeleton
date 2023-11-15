@@ -42,10 +42,7 @@
   (clui:input-register-keypress 'escape
                                 (lambda ()
                                   (when (eq current-scene 'main-menu)
-                                    (print "#'enter-main-menu")
-                                    (clui:exit)
-                                    
-                                    ))
+                                    (clui:exit)))
                                 "quit-main-menu")
   (set-bg "assets/images/main-menu.png")
   (let ((bounce (clui:make-transition 0.5 0.75 1 #'clui:ease-out-bounce))
@@ -65,7 +62,10 @@
     (clui:shape-instance 'basic-button
                          :instance-name 'start-button
                          :button-text "START"
-                         :on-pressed #'enter-game-world
+                         :on-pressed (lambda ()
+                                       (clui:play-sound "assets/sounds/btn-press.wav")
+                                       (enter-game-world))
+                         :on-mouse-enter (lambda () (clui:play-sound "assets/sounds/btn-hover.wav"))
                          :x (lambda () (clui::half clui:*window-width*))
                          :y (lambda () (clui::half clui:*window-height*))
                          :scale (lambda () (* 1.0 (funcall bounce)))
@@ -74,12 +74,14 @@
     (clui:shape-instance 'basic-button
                          :instance-name 'quit-button
                          :button-text "QUIT"
-                         :on-pressed (lambda () (clui:exit))
+                         :on-pressed (lambda ()
+                                       (clui:play-sound "assets/sounds/btn-press.wav")
+                                       (clui:exit))
+                         :on-mouse-enter (lambda () (clui:play-sound "assets/sounds/btn-hover.wav"))
                          :x (lambda () (clui::half clui:*window-width*))
                          :y (lambda () (- (clui::half clui:*window-height*) 100))
                          :scale (lambda () (* 1.0 (funcall bounce2)))
-                         :min-width 300)
-    )
+                         :min-width 300))
 
   (clui::play-music "assets/music/piano-copyright.wav"))
 
