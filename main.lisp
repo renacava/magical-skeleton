@@ -106,9 +106,11 @@
   (reset-day-time)
   (set-bg "assets/images/copyright/class.png")
   (make-date-text)
+  (make-stat "Gold" "Work" (make-stat-modifier "Gold" "Energy" (lambda () (max (get-stat-value "Knowledge" 0) 1)) -1))
   (make-stat "Knowledge" "Study" (make-stat-modifier "Knowledge" "Energy" 1 -1))
   (make-stat "Energy" "Rest" (make-stat-modifier "Energy" "Food" 1 -1))
   (make-stat "Food" "Eat")
+
   (make-settings-button))
 
 (clui:defshape
@@ -195,23 +197,28 @@
 
 (defun make-stat-modifier (stat1-name stat2-name stat1-amount stat2-amount)
   (lambda ()
-    (let ((s1-amount stat1-amount)
-          (s2-amount stat2-amount))
-      ;; check if adding stat2-amount to stat2-name would reduce it below 0.
-      ;; if it does, set the amounts to add to each stat to 0, effectively nullifying the func.
-      (when (and stat2-name stat2-amount)
-        (when (> 0 (+ (or (getf stats (clui:to-property stat2-name)) 0)
-                      stat2-amount))
-          (setf s1-amount 0
-                s2-amount 0)))
-      (when (and stat1-name stat1-amount)
-        (setf (getf stats (clui:to-property stat1-name))
-              (+ (or (getf stats (clui:to-property stat1-name)) 0)
-                 s1-amount)))
-      (when (and stat2-name stat2-amount
-                 (setf (getf stats (clui:to-property stat2-name))
-                       (+ (or (getf stats (clui:to-property stat2-name)) 0)
-                          s2-amount)))))))
+    (when (stat-can-afford? stat2-name stat2-amount)
+      (incf-stat-value stat1-name stat1-amount)
+      (incf-stat-value stat2-name stat2-amount))))
+
+(defun stat-can-afford? (stat-name amount)
+  "Returns T if adding amount to stat-name would leave it at 0 or above."
+  (when (and stat-name amount)
+    (when (<= 0 (+ (get-stat-value stat-name 0)
+                  (clui:resolve amount)))
+      t)))
+
+(defun incf-stat-value (stat-name amount)
+  (when (and stat-name amount
+             (set-stat-value stat-name (+ (get-stat-value stat-name 0)
+                                          (clui:resolve amount))))))
+
+(defun get-stat-value (stat-name &optional alternative)
+  (or (getf stats (clui:to-property stat-name)) alternative))
+
+(defun set-stat-value (stat-name value)
+  (setf (getf stats (clui:to-property stat-name))
+        value))
 
 (defun make-date-text ()
   (let ((y (lambda () (- clui:*window-height* 45))))
