@@ -110,8 +110,29 @@
   (make-stat "Knowledge" "Study" (make-stat-modifier "Knowledge" "Energy" 1 -1))
   (make-stat "Energy" "Rest" (make-stat-modifier "Energy" "Food" 1 -1))
   (make-stat "Food" "Eat")
-
-  (make-settings-button))
+  (make-settings-button)
+  (clui::shape-instance 'basic-checkbox
+                        :instance-name 'pie-checkbox
+                        :x (lambda () (- clui::*window-width* 40))
+                        :y (lambda () (- clui::*window-height* 200)))
+  (clui:shape-instance 'basic-pie-chart
+                       :instance-name 'stat-chart
+                       :colours (reverse (list '(1 1 0 1) '(0.8 0.8 0.8 1) '(0.2 0.8 0.2 1) '(0.8 0.2 0.2 1)))
+                       :segment-amounts (reverse
+                                         (list
+                                          (lambda () (get-stat-value "Gold"))
+                                          (lambda () (get-stat-value "Knowledge"))
+                                          (lambda () (get-stat-value "Energy"))
+                                          (lambda () (get-stat-value "Food"))))
+                       :texts (lambda () (unless (clui::box-checked? 'pie-checkbox)
+                                           (list "Food"
+                                                 "Energy"
+                                                 "Knowledge"
+                                                 "Gold")))
+                       :text-scale 0.8
+                       :x 600
+                       :y 500
+                       :radius 100))
 
 (clui:defshape
   nil
