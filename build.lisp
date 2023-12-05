@@ -3,4 +3,5 @@
 (ql:quickload :sb-introspect)
 (ql:quickload :deploy)
 (ql:quickload :magical-skeleton)
+(in-package :magical-skeleton)
 (asdf:make :magical-skeleton)
