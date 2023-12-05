@@ -1,2 +1,4 @@
 (defpackage #:magical-skeleton
-  (:use #:cl))
+  (:use #:cl)
+  (:export
+   #:start))

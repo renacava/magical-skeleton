@@ -1,0 +1,6 @@
+(load "~/clui/projects/clui/clui.asd")
+(load "~/clui/projects/magical-skeleton/magical-skeleton.asd")
+(ql:quickload :sb-introspect)
+(ql:quickload :deploy)
+(ql:quickload :magical-skeleton)
+(asdf:make :magical-skeleton)

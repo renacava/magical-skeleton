@@ -1,9 +1,11 @@
 (in-package :magical-skeleton)
 
 (defun start ()
-  (clui:start :outer-package *package*)
+  ;;(clui:start :outer-package *package*)
   (clui:set-bg-colour (list 0 0 0))
-  (make-title-screen))
+  (make-title-screen)
+  (clui::init-main-loop :outer-package *package*)
+  )
 
 (defun make-title-screen ()
   (clui:remove-all-instances)
