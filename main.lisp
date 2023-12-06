@@ -2,10 +2,10 @@
 
 (defun start ()
   ;;(clui:start :outer-package *package*)
+  (in-package :magical-skeleton)
   (clui:set-bg-colour (list 0 0 0))
   (make-title-screen)
-  (clui::init-main-loop :outer-package *package*)
-  )
+  (clui::init-main-loop :outer-package *package*))
 
 (defun make-title-screen ()
   (clui:remove-all-instances)
@@ -85,7 +85,8 @@
                          :scale (lambda () (* 1.0 (funcall bounce2)))
                          :min-width 300))
 
-  (clui::play-music "assets/music/piano-copyright.wav"))
+  (clui::play-music "assets/music/piano-copyright.wav")
+  )
 
 (defparameter *day-time* (get-internal-real-time))
 (defparameter *timescale* 5)
@@ -204,7 +205,7 @@
          (offset (- (random (* 2 max-offset)) max-offset))
          (transition (clui:make-transition (+ 0.5 offset) 0.75 1 #'clui:ease-out-circ)))
       (clui:shape-instance 'basic-button
-                        :x (+ 100 (* 80 (position (clui::to-property stat-name) stats)))
+                        :x (lambda () (+ 100 (* 80 (position (clui::to-property stat-name) stats))))
                         :y 50
                         :scale transition
                         :button-text button-text
