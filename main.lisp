@@ -133,7 +133,7 @@
                                                  "Knowledge"
                                                  "Gold")))
                        :text-scale 0.8
-                       :x 600
+                       :x 450
                        :y 500
                        :radius 100))
 
@@ -203,21 +203,21 @@
 (defun make-stat-button (stat-name button-text &optional stat-modifier-func)
   (let* ((max-offset 0.3)
          (offset (- (random (* 2 max-offset)) max-offset))
-         (transition (clui:make-transition (+ 0.5 offset) 0.75 1 #'clui:ease-out-circ)))
-      (clui:shape-instance 'basic-button
-                        :x (lambda () (+ 100 (* 80 (position (clui::to-property stat-name) stats))))
-                        :y 50
-                        :scale transition
-                        :button-text button-text
-                        :on-mouse-enter (lambda () (clui:play-sound "assets/sounds/btn-hover.wav"))
-                        :on-pressed (or
-                                     (when stat-modifier-func
-                                       (lambda () (progn (funcall stat-modifier-func)
-                                                         (clui::play-sound "assets/sounds/btn-press.wav"))))
-                                     (lambda () (progn
-                                                  (setf (getf stats (clui:to-property stat-name))
-                                                        (1+ (or (getf stats (clui:to-property stat-name)) 0)))
-                                                  (clui::play-sound "assets/sounds/btn-press.wav")))))))
+         (transition (clui:make-transition (+ 0.5 offset) 0.75 0.9 #'clui:ease-out-circ)))
+    (clui:shape-instance 'basic-button
+                         :x (lambda () (+ 100 (* 80 (position (clui::to-property stat-name) stats))))
+                         :y 50
+                         :scale transition
+                         :button-text button-text
+                         :on-mouse-enter (lambda () (clui:play-sound "assets/sounds/btn-hover.wav"))
+                         :on-pressed (or
+                                      (when stat-modifier-func
+                                        (lambda () (progn (funcall stat-modifier-func)
+                                                          (clui::play-sound "assets/sounds/btn-press.wav"))))
+                                      (lambda () (progn
+                                                   (setf (getf stats (clui:to-property stat-name))
+                                                         (1+ (or (getf stats (clui:to-property stat-name)) 0)))
+                                                   (clui::play-sound "assets/sounds/btn-press.wav")))))))
 
 (defun make-stat-modifier (stat1-name stat2-name stat1-amount stat2-amount)
   (lambda ()
